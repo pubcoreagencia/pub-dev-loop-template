@@ -3,6 +3,12 @@
 # devloop-validate.sh
 # Detect package manager and run available build/test/typecheck scripts.
 
+# Version flag support
+if [ "${1:-}" = "--version" ]; then
+  echo "devloop-validate 1.1.0"
+  exit 0
+fi
+
 set -euo pipefail
 
 # Initialize result variables
@@ -13,6 +19,8 @@ if [ -f "pnpm-lock.yaml" ]; then
   PACKAGE_MANAGER="pnpm"
 elif [ -f "yarn.lock" ]; then
   PACKAGE_MANAGER="yarn"
+elif [ -f "bun.lockb" ] || [ -f "bun.lock" ]; then
+  PACKAGE_MANAGER="bun"
 elif [ -f "package-lock.json" ]; then
   PACKAGE_MANAGER="npm"
 elif [ -f "package.json" ]; then
@@ -44,6 +52,7 @@ run_script() {
       pnpm) CMD="pnpm run $name" ;;
       yarn) CMD="yarn $name" ;;
       npm) CMD="npm run $name" ;;
+      bun) CMD="bun run $name" ;;
       *) CMD="" ;;
     esac
     if [ -n "$CMD" ]; then
