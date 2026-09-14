@@ -1,0 +1,39 @@
+name: Verify Template Baseline
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+jobs:
+  verify:
+    name: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Validate Template Integrity
+        run: |
+          node -e "
+            const fs = require('fs');
+            const required = [
+              'AUTONOMOUS_CYCLE.md',
+              'DEVLOOP_CONTEXT_STANDARD.md',
+              'MASTER_CONTEXT.md'
+            ];
+            for (const f of required) {
+              if (!fs.existsSync(f)) {
+                console.error('Missing mandatory template baseline file: ' + f);
+                process.exit(1);
+              }
+            }
+            console.log('[CI:Verify] Template integrity verified successfully.');
+          "
